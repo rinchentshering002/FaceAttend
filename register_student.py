@@ -51,13 +51,13 @@ def register_student(
     # ========================================================
 
     if not student_id:
-        return False, "Student ID cannot be empty."
+        return False, "Student ID cannot be blank."
 
     if not name:
-        return False, "Student name cannot be empty."
+        return False, "Student name cannot be blank."
 
     if not student_class:
-        return False, "Class cannot be empty."
+        return False, "Class cannot be unoccupied."
 
     if not section:
         return False, "Section cannot be empty."
