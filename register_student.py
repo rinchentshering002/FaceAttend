@@ -266,7 +266,7 @@ def register_student(
 
                     print(
                         "Multiple faces detected. "
-                        "Please make sure only one "
+                        "Please ensure only one "
                         "person is visible."
                     )
 
