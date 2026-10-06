@@ -27,7 +27,7 @@ supabase = create_client(
 print("Connected to Supabase successfully!")
 
 # ============================================================
-# CHECK STUDENTS
+# CHECK REGISTERED STUDENTS
 # ============================================================
 
 students = (
