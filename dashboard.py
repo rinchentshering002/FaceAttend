@@ -9,6 +9,19 @@ from supabase import create_client
 
 from register_student import register_student
 from attendance import take_attendance
+from attendance_report import AttendanceReport
+
+# ============================================================
+# ERROR HANDLING
+# ============================================================
+
+def show_db_error(error):
+    print(f"Database error: {error}")
+
+    messagebox.showerror(
+        "Database Error",
+        "Something went wrong while connecting to the database."
+    )
 
 
 # ============================================================
@@ -33,7 +46,6 @@ BHUTAN_TZ = ZoneInfo("Asia/Thimphu")
 
 # ============================================================
 # THEME
-# Subtle Bhutanese-inspired palette
 # ============================================================
 
 BG = "#F7F3EA"
@@ -162,9 +174,6 @@ main_area.pack(
 
 # ============================================================
 # TOP BAR
-# IMPORTANT:
-# top_bar is outside content_frame.
-# Therefore clear_content() will never destroy it.
 # ============================================================
 
 top_bar = tk.Frame(
@@ -218,14 +227,9 @@ def bhutan_now():
 
 
 def clear_content():
-    """
-    Remove only the current page content.
-
-    IMPORTANT:
-    This does NOT destroy top_bar or live_clock.
-    """
 
     for widget in content_frame.winfo_children():
+
         try:
             widget.destroy()
         except tk.TclError:
@@ -233,25 +237,66 @@ def clear_content():
 
 
 def format_check_in_time(value):
+
     if not value:
         return "-"
 
+    value = str(value).strip()
+
+    # Time-only value, e.g. 15:24:31 or 15:24:31.123456
     try:
+
+        time_value = datetime.strptime(
+            value,
+            "%H:%M:%S.%f"
+        )
+
+        return time_value.strftime(
+            "%I:%M:%S %p"
+        )
+
+    except ValueError:
+        pass
+
+    try:
+
+        time_value = datetime.strptime(
+            value,
+            "%H:%M:%S"
+        )
+
+        return time_value.strftime(
+            "%I:%M:%S %p"
+        )
+
+    except ValueError:
+        pass
+
+    # Full ISO datetime
+    try:
+
         utc_time = datetime.fromisoformat(
-            str(value).replace("Z", "+00:00")
+            value.replace(
+                "Z",
+                "+00:00"
+            )
         )
 
         if utc_time.tzinfo is None:
+
             utc_time = utc_time.replace(
                 tzinfo=ZoneInfo("UTC")
             )
 
         return utc_time.astimezone(
             BHUTAN_TZ
-        ).strftime("%I:%M:%S %p")
+        ).strftime(
+            "%I:%M:%S %p"
+        )
 
     except Exception:
-        return str(value)
+
+        return value
 
 
 def rounded_button(
@@ -288,8 +333,11 @@ def rounded_button(
     )
 
     def enter(_):
+
         try:
+
             if button["state"] != "disabled":
+
                 button.configure(
                     bg=(
                         MAROON_DARK
@@ -297,15 +345,24 @@ def rounded_button(
                         else HOVER
                     )
                 )
+
         except tk.TclError:
             pass
 
+
     def leave(_):
+
         try:
+
             if button["state"] != "disabled":
-                button.configure(bg=bg)
+
+                button.configure(
+                    bg=bg
+                )
+
         except tk.TclError:
             pass
+
 
     button.bind(
         "<Enter>",
@@ -342,6 +399,7 @@ def section_title(
     )
 
     if subtitle:
+
         tk.Label(
             frame,
             text=subtitle,
@@ -416,10 +474,12 @@ def update_clock():
     try:
 
         if not root.winfo_exists():
+
             clock_job = None
             return
 
         if not live_clock.winfo_exists():
+
             clock_job = None
             return
 
@@ -442,7 +502,6 @@ def update_clock():
         clock_job = None
 
 
-# Start clock
 update_clock()
 
 
@@ -529,18 +588,23 @@ def set_active(active_button):
     for button in nav_buttons:
 
         try:
+
             button.configure(
                 bg=MAROON_DARK,
                 fg="#E9DCCF"
             )
+
         except tk.TclError:
             pass
 
+
     try:
+
         active_button.configure(
             bg=MAROON,
             fg=WHITE
         )
+
     except tk.TclError:
         pass
 
@@ -572,25 +636,34 @@ def navigation_button(
         pady=2
     )
 
+
     def enter(_):
 
         try:
+
             if button["bg"] != MAROON:
+
                 button.configure(
                     bg=MAROON
                 )
+
         except tk.TclError:
             pass
+
 
     def leave(_):
 
         try:
+
             if button["bg"] != MAROON:
+
                 button.configure(
                     bg=MAROON_DARK
                 )
+
         except tk.TclError:
             pass
+
 
     button.bind(
         "<Enter>",
@@ -659,7 +732,6 @@ def show_dashboard():
         side="left"
     )
 
-
     tk.Label(
         left,
         text="Kuzuzangpo La! 👋",
@@ -669,7 +741,6 @@ def show_dashboard():
     ).pack(
         anchor="w"
     )
-
 
     tk.Label(
         left,
@@ -681,7 +752,6 @@ def show_dashboard():
         anchor="w",
         pady=(2, 2)
     )
-
 
     tk.Label(
         left,
@@ -696,9 +766,7 @@ def show_dashboard():
         anchor="w"
     )
 
-
     now = bhutan_now()
-
 
     tk.Label(
         hero_body,
@@ -713,7 +781,6 @@ def show_dashboard():
         side="right",
         padx=10
     )
-
 
     # --------------------------------------------------------
     # DATABASE STATISTICS
@@ -733,13 +800,15 @@ def show_dashboard():
             or []
         )
 
-    except Exception:
+    except Exception as e:
+
+        print(
+            f"Error loading students: {e}"
+        )
 
         students = []
 
-
     today = bhutan_now().date().isoformat()
-
 
     try:
 
@@ -761,17 +830,19 @@ def show_dashboard():
             or []
         )
 
-    except Exception:
+    except Exception as e:
+
+        print(
+            f"Error loading attendance: {e}"
+        )
 
         attendance_records = []
-
 
     unique_present_ids = {
         record.get("student_id")
         for record in attendance_records
         if record.get("status") == "Present"
     }
-
 
     present = len(
         unique_present_ids
@@ -792,7 +863,6 @@ def show_dashboard():
         else 0
     )
 
-
     # --------------------------------------------------------
     # STATISTICS CARDS
     # --------------------------------------------------------
@@ -807,7 +877,6 @@ def show_dashboard():
         padx=28,
         pady=20
     )
-
 
     def stat_card(
         parent,
@@ -829,7 +898,6 @@ def show_dashboard():
             padx=5
         )
 
-
         top = tk.Frame(
             card,
             bg=CARD
@@ -840,7 +908,6 @@ def show_dashboard():
             padx=18,
             pady=(17, 5)
         )
-
 
         icon = tk.Label(
             top,
@@ -856,7 +923,6 @@ def show_dashboard():
             side="left"
         )
 
-
         tk.Label(
             top,
             text=title,
@@ -868,7 +934,6 @@ def show_dashboard():
             padx=10
         )
 
-
         tk.Label(
             card,
             text=value,
@@ -879,7 +944,6 @@ def show_dashboard():
             anchor="w",
             padx=18
         )
-
 
         tk.Label(
             card,
@@ -893,9 +957,7 @@ def show_dashboard():
             pady=(0, 17)
         )
 
-
         return card
-
 
     stat_card(
         stats,
@@ -906,7 +968,6 @@ def show_dashboard():
         MAROON
     )
 
-
     stat_card(
         stats,
         "PRESENT TODAY",
@@ -915,7 +976,6 @@ def show_dashboard():
         "✓",
         GREEN
     )
-
 
     stat_card(
         stats,
@@ -926,7 +986,6 @@ def show_dashboard():
         RED
     )
 
-
     stat_card(
         stats,
         "ATTENDANCE RATE",
@@ -935,7 +994,6 @@ def show_dashboard():
         "%",
         GOLD
     )
-
 
     # --------------------------------------------------------
     # MIDDLE SECTION
@@ -950,7 +1008,6 @@ def show_dashboard():
         fill="x",
         padx=28
     )
-
 
     # --------------------------------------------------------
     # ATTENDANCE OVERVIEW
@@ -967,7 +1024,6 @@ def show_dashboard():
         padx=(0, 7)
     )
 
-
     tk.Label(
         overview,
         text="Today's Attendance",
@@ -979,7 +1035,6 @@ def show_dashboard():
         padx=22,
         pady=(20, 2)
     )
-
 
     tk.Label(
         overview,
@@ -995,7 +1050,6 @@ def show_dashboard():
         anchor="w",
         padx=22
     )
-
 
     progress_bg = tk.Frame(
         overview,
@@ -1013,7 +1067,6 @@ def show_dashboard():
         False
     )
 
-
     progress_width = max(
         int(
             min(
@@ -1023,7 +1076,6 @@ def show_dashboard():
         ),
         1
     )
-
 
     progress = tk.Frame(
         progress_bg,
@@ -1036,7 +1088,6 @@ def show_dashboard():
         y=0,
         width=progress_width
     )
-
 
     if percentage >= 85:
 
@@ -1062,7 +1113,6 @@ def show_dashboard():
 
         attendance_color = RED
 
-
     tk.Label(
         overview,
         text=attendance_message,
@@ -1074,7 +1124,6 @@ def show_dashboard():
         padx=22,
         pady=(2, 20)
     )
-
 
     # --------------------------------------------------------
     # QUICK ACTIONS
@@ -1091,7 +1140,6 @@ def show_dashboard():
         padx=(7, 0)
     )
 
-
     tk.Label(
         actions,
         text="Quick Actions",
@@ -1104,7 +1152,6 @@ def show_dashboard():
         pady=(20, 12)
     )
 
-
     action_row = tk.Frame(
         actions,
         bg=CARD
@@ -1115,7 +1162,6 @@ def show_dashboard():
         padx=18
     )
 
-
     rounded_button(
         action_row,
         "📷  Take Attendance",
@@ -1125,7 +1171,6 @@ def show_dashboard():
         side="left",
         padx=4
     )
-
 
     rounded_button(
         action_row,
@@ -1138,7 +1183,6 @@ def show_dashboard():
         padx=4
     )
 
-
     rounded_button(
         actions,
         "▣  Open Reports",
@@ -1150,7 +1194,6 @@ def show_dashboard():
         padx=22,
         pady=12
     )
-
 
     # --------------------------------------------------------
     # RECENT ATTENDANCE
@@ -1167,7 +1210,6 @@ def show_dashboard():
         pady=(15, 25)
     )
 
-
     header = tk.Frame(
         recent,
         bg=CARD
@@ -1179,7 +1221,6 @@ def show_dashboard():
         pady=(15, 8)
     )
 
-
     tk.Label(
         header,
         text="Recent Attendance",
@@ -1189,7 +1230,6 @@ def show_dashboard():
     ).pack(
         side="left"
     )
-
 
     tk.Label(
         header,
@@ -1202,7 +1242,6 @@ def show_dashboard():
         padx=10
     )
 
-
     columns = (
         "student_id",
         "name",
@@ -1212,14 +1251,24 @@ def show_dashboard():
         "status"
     )
 
+    recent_table_frame = tk.Frame(
+        recent,
+        bg=CARD
+    )
+
+    recent_table_frame.pack(
+        fill="both",
+        expand=True,
+        padx=15,
+        pady=(0, 15)
+    )
 
     tree = ttk.Treeview(
-        recent,
+        recent_table_frame,
         columns=columns,
         show="headings",
         height=6
     )
-
 
     headings = {
         "student_id": "Student ID",
@@ -1230,7 +1279,6 @@ def show_dashboard():
         "status": "Status"
     }
 
-
     widths = {
         "student_id": 100,
         "name": 190,
@@ -1239,7 +1287,6 @@ def show_dashboard():
         "time": 125,
         "status": 90
     }
-
 
     for column in columns:
 
@@ -1254,6 +1301,26 @@ def show_dashboard():
             anchor="center"
         )
 
+    recent_scrollbar = ttk.Scrollbar(
+        recent_table_frame,
+        orient="vertical",
+        command=tree.yview
+    )
+
+    tree.configure(
+        yscrollcommand=recent_scrollbar.set
+    )
+
+    tree.pack(
+        side="left",
+        fill="both",
+        expand=True
+    )
+
+    recent_scrollbar.pack(
+        side="right",
+        fill="y"
+    )
 
     try:
 
@@ -1262,11 +1329,14 @@ def show_dashboard():
             .table("attendance")
             .select(
                 "student_id, attendance_date, "
-                "status, check_in_time, "
-                "courses(course_code)"
+                "attendance_time, status, course_id"
             )
             .order(
-                "check_in_time",
+                "attendance_date",
+                desc=True
+            )
+            .order(
+                "attendance_time",
                 desc=True
             )
             .limit(8)
@@ -1278,53 +1348,58 @@ def show_dashboard():
             or []
         )
 
+        # Load courses separately
+        try:
+            course_response = (
+                supabase
+                .table("courses")
+                .select(
+                    "course_id, course_code"
+                )
+                .execute()
+            )
+
+            course_map = {
+                str(course["course_id"]): course.get(
+                    "course_code",
+                    "-"
+                )
+                for course in (
+                    course_response.data or []
+                )
+            }
+
+        except Exception as e:
+
+            print(
+                f"Error loading course map: {e}"
+            )
+
+            course_map = {}
 
         student_map = {
-            student["student_id"]:
+            str(student["student_id"]):
                 student.get("name", "-")
             for student in students
         }
 
-
         for record in recent_records:
 
-            student_id = (
+            student_id = str(
                 record.get(
                     "student_id",
                     "-"
                 )
             )
 
-
-            course_data = record.get(
-                "courses"
+            course_id = record.get(
+                "course_id"
             )
 
-
-            if isinstance(
-                course_data,
-                list
-            ):
-
-                course_data = (
-                    course_data[0]
-                    if course_data
-                    else None
-                )
-
-
-            course_code = (
-                course_data.get(
-                    "course_code",
-                    "-"
-                )
-                if isinstance(
-                    course_data,
-                    dict
-                )
-                else "-"
+            course_code = course_map.get(
+                str(course_id),
+                "-"
             )
-
 
             tree.insert(
                 "",
@@ -1342,7 +1417,7 @@ def show_dashboard():
                     ),
                     format_check_in_time(
                         record.get(
-                            "check_in_time"
+                            "attendance_time"
                         )
                     ),
                     record.get(
@@ -1352,18 +1427,11 @@ def show_dashboard():
                 )
             )
 
+    except Exception as e:
 
-    except Exception:
-        pass
-
-
-    tree.pack(
-        fill="both",
-        expand=True,
-        padx=15,
-        pady=(0, 15)
-    )
-
+        print(
+            f"Error loading recent attendance: {e}"
+        )
 
 # ============================================================
 # REGISTER STUDENT
@@ -1374,7 +1442,6 @@ def open_registration():
     set_active(
         student_nav
     )
-
 
     window = tk.Toplevel(
         root
@@ -1401,7 +1468,6 @@ def open_registration():
         root
     )
 
-
     # --------------------------------------------------------
     # HERO
     # --------------------------------------------------------
@@ -1415,12 +1481,10 @@ def open_registration():
         fill="x"
     )
 
-
     add_bhutan_pattern(
         hero,
         MAROON
     )
-
 
     tk.Label(
         hero,
@@ -1431,7 +1495,6 @@ def open_registration():
     ).pack(
         pady=(20, 3)
     )
-
 
     tk.Label(
         hero,
@@ -1445,7 +1508,6 @@ def open_registration():
     ).pack(
         pady=(0, 20)
     )
-
 
     # --------------------------------------------------------
     # FORM
@@ -1461,11 +1523,7 @@ def open_registration():
         pady=22
     )
 
-
-    def field(
-        label,
-        placeholder=""
-    ):
+    def field(label):
 
         tk.Label(
             form,
@@ -1479,7 +1537,6 @@ def open_registration():
             pady=(14, 5)
         )
 
-
         entry = tk.Entry(
             form,
             font=("Segoe UI", 11),
@@ -1490,16 +1547,13 @@ def open_registration():
             insertbackground=MAROON
         )
 
-
         entry.pack(
             fill="x",
             padx=25,
             ipady=7
         )
 
-
         return entry
-
 
     student_id_entry = field(
         "Student ID"
@@ -1517,7 +1571,6 @@ def open_registration():
         "Section"
     )
 
-
     status_label = tk.Label(
         window,
         text="Ready to capture face",
@@ -1528,9 +1581,8 @@ def open_registration():
 
     status_label.pack()
 
-
     # --------------------------------------------------------
-    # REGISTER FUNCTION
+    # REGISTER
     # --------------------------------------------------------
 
     def register():
@@ -1559,17 +1611,23 @@ def open_registration():
             .strip()
         )
 
-
-        if not student_id or not name:
+        if (
+            not student_id
+            or not name
+            or not student_class
+            or not section
+        ):
 
             messagebox.showwarning(
                 "Missing Information",
-                "Student ID and name are required.",
+                (
+                    "Please fill in Student ID, "
+                    "Name, Class and Section."
+                ),
                 parent=window
             )
 
             return
-
 
         status_label.configure(
             text=(
@@ -1579,11 +1637,9 @@ def open_registration():
             fg=MAROON
         )
 
-
         window.update_idletasks()
 
         window.withdraw()
-
 
         try:
 
@@ -1597,14 +1653,23 @@ def open_registration():
         except Exception as e:
 
             success = False
-            message = str(e)
 
+            message = (
+                "An unexpected error occurred "
+                "during registration."
+            )
+
+            print(
+                f"Registration error: {e}"
+            )
 
         try:
-            window.deiconify()
-        except tk.TclError:
-            return
 
+            window.deiconify()
+
+        except tk.TclError:
+
+            return
 
         if success:
 
@@ -1614,11 +1679,9 @@ def open_registration():
                 parent=window
             )
 
-
             window.destroy()
 
             show_dashboard()
-
 
         else:
 
@@ -1630,13 +1693,11 @@ def open_registration():
                 fg=RED
             )
 
-
             messagebox.showerror(
                 "Registration Error",
                 message,
                 parent=window
             )
-
 
     # --------------------------------------------------------
     # BUTTONS
@@ -1650,7 +1711,6 @@ def open_registration():
     ).pack(
         pady=(5, 8)
     )
-
 
     tk.Button(
         window,
@@ -1678,7 +1738,6 @@ def open_attendance():
         attendance_nav
     )
 
-
     window = tk.Toplevel(
         root
     )
@@ -1704,7 +1763,6 @@ def open_attendance():
         root
     )
 
-
     # --------------------------------------------------------
     # HERO
     # --------------------------------------------------------
@@ -1718,12 +1776,10 @@ def open_attendance():
         fill="x"
     )
 
-
     add_bhutan_pattern(
         hero,
         MAROON
     )
-
 
     tk.Label(
         hero,
@@ -1734,7 +1790,6 @@ def open_attendance():
     ).pack(
         pady=(20, 3)
     )
-
 
     tk.Label(
         hero,
@@ -1748,7 +1803,6 @@ def open_attendance():
     ).pack(
         pady=(0, 20)
     )
-
 
     # --------------------------------------------------------
     # COURSE CARD
@@ -1764,7 +1818,6 @@ def open_attendance():
         pady=25
     )
 
-
     tk.Label(
         card,
         text="COURSE",
@@ -1776,7 +1829,6 @@ def open_attendance():
         padx=28,
         pady=(22, 7)
     )
-
 
     try:
 
@@ -1798,7 +1850,6 @@ def open_attendance():
             or []
         )
 
-
     except Exception as e:
 
         window.destroy()
@@ -1810,7 +1861,6 @@ def open_attendance():
         )
 
         return
-
 
     if not courses:
 
@@ -1827,7 +1877,6 @@ def open_attendance():
 
         return
 
-
     course_values = [
         (
             f"{course['course_code']} "
@@ -1835,7 +1884,6 @@ def open_attendance():
         )
         for course in courses
     ]
-
 
     combo = ttk.Combobox(
         card,
@@ -1852,7 +1900,6 @@ def open_attendance():
 
     combo.current(0)
 
-
     teacher_label = tk.Label(
         card,
         text="",
@@ -1864,7 +1911,6 @@ def open_attendance():
     teacher_label.pack(
         pady=(9, 5)
     )
-
 
     camera_status = tk.Label(
         card,
@@ -1878,10 +1924,7 @@ def open_attendance():
         pady=(2, 20)
     )
 
-
-    def update_course_info(
-        _=None
-    ):
+    def update_course_info(_=None):
 
         index = combo.current()
 
@@ -1898,14 +1941,12 @@ def open_attendance():
                 text=f"Instructor: {teacher}"
             )
 
-
     combo.bind(
         "<<ComboboxSelected>>",
         update_course_info
     )
 
     update_course_info()
-
 
     # --------------------------------------------------------
     # START ATTENDANCE
@@ -1914,7 +1955,6 @@ def open_attendance():
     def start():
 
         index = combo.current()
-
 
         if index == -1:
 
@@ -1926,12 +1966,9 @@ def open_attendance():
 
             return
 
-
         course = courses[index]
 
-
         window.withdraw()
-
 
         try:
 
@@ -1946,12 +1983,13 @@ def open_attendance():
             success = False
             message = str(e)
 
-
         try:
-            window.deiconify()
-        except tk.TclError:
-            return
 
+            window.deiconify()
+
+        except tk.TclError:
+
+            return
 
         if success:
 
@@ -1961,11 +1999,9 @@ def open_attendance():
                 parent=window
             )
 
-
             window.destroy()
 
             show_dashboard()
-
 
         else:
 
@@ -1975,7 +2011,6 @@ def open_attendance():
                 parent=window
             )
 
-
     rounded_button(
         window,
         "◎  Start Face Recognition",
@@ -1984,7 +2019,6 @@ def open_attendance():
     ).pack(
         pady=(0, 10)
     )
-
 
     tk.Button(
         window,
@@ -2010,567 +2044,36 @@ def view_attendance():
         reports_nav
     )
 
-
-    window = tk.Toplevel(
-        root
-    )
-
-    window.title(
-        "Attendance Reports | FaceAttend"
-    )
-
-    window.geometry(
-        "1150x690"
-    )
-
-    window.configure(
-        bg=BG
-    )
-
-    window.minsize(
-        1000,
-        600
-    )
-
-
-    # --------------------------------------------------------
-    # TITLE
-    # --------------------------------------------------------
-
-    title = section_title(
-        window,
-        "Attendance Reports",
-        "Review attendance by course and date"
-    )
-
-    title.pack(
-        anchor="w",
-        padx=30,
-        pady=(25, 15)
-    )
-
-
-    # --------------------------------------------------------
-    # FILTER
-    # --------------------------------------------------------
-
-    filter_frame = make_card(
-        window
-    )
-
-    filter_frame.pack(
-        fill="x",
-        padx=30,
-        pady=(0, 15)
-    )
-
-
-    tk.Label(
-        filter_frame,
-        text="COURSE",
-        bg=CARD,
-        fg=MUTED,
-        font=("Segoe UI", 8, "bold")
-    ).grid(
-        row=0,
-        column=0,
-        padx=(20, 7),
-        pady=18
-    )
-
-
     try:
 
-        course_response = (
-            supabase
-            .table("courses")
-            .select(
-                "course_id, "
-                "course_code, "
-                "course_name"
-            )
-            .order("course_id")
-            .execute()
+        report_window = AttendanceReport(
+            root
         )
 
-        courses = (
-            course_response.data
-            or []
+        report_window.window.transient(
+            root
         )
 
+        report_window.window.grab_set()
 
     except Exception as e:
 
+        print(
+            f"Attendance report error: {e}"
+        )
+
         messagebox.showerror(
-            "Error",
-            f"Could not load courses.\n\n{e}",
-            parent=window
+            "Report Error",
+            (
+                "Could not open the attendance report.\n\n"
+                f"{e}"
+            ),
+            parent=root
         )
-
-        window.destroy()
-
-        return
-
-
-    course_values = [
-        (
-            f"{course['course_code']} "
-            f"— {course['course_name']}"
-        )
-        for course in courses
-    ]
-
-
-    course_combo = ttk.Combobox(
-        filter_frame,
-        values=course_values,
-        state="readonly",
-        width=35,
-        style="Modern.TCombobox"
-    )
-
-    course_combo.grid(
-        row=0,
-        column=1,
-        padx=5
-    )
-
-
-    if courses:
-        course_combo.current(0)
-
-
-    tk.Label(
-        filter_frame,
-        text="DATE",
-        bg=CARD,
-        fg=MUTED,
-        font=("Segoe UI", 8, "bold")
-    ).grid(
-        row=0,
-        column=2,
-        padx=(25, 7)
-    )
-
-
-    date_entry = tk.Entry(
-        filter_frame,
-        width=14,
-        font=("Segoe UI", 10),
-        relief="solid",
-        bd=1
-    )
-
-    date_entry.grid(
-        row=0,
-        column=3,
-        padx=5,
-        ipady=5
-    )
-
-    date_entry.insert(
-        0,
-        bhutan_now().date().isoformat()
-    )
-
-
-    # --------------------------------------------------------
-    # TABLE
-    # --------------------------------------------------------
-
-    table_card = make_card(
-        window
-    )
-
-    table_card.pack(
-        fill="both",
-        expand=True,
-        padx=30
-    )
-
-
-    columns = (
-        "student_id",
-        "name",
-        "class",
-        "section",
-        "status",
-        "check_in_time"
-    )
-
-
-    tree = ttk.Treeview(
-        table_card,
-        columns=columns,
-        show="headings"
-    )
-
-
-    headings = {
-        "student_id": "Student ID",
-        "name": "Name",
-        "class": "Class",
-        "section": "Section",
-        "status": "Status",
-        "check_in_time": "Check-in Time"
-    }
-
-
-    widths = {
-        "student_id": 120,
-        "name": 240,
-        "class": 100,
-        "section": 100,
-        "status": 120,
-        "check_in_time": 160
-    }
-
-
-    for column in columns:
-
-        tree.heading(
-            column,
-            text=headings[column]
-        )
-
-        tree.column(
-            column,
-            width=widths[column],
-            anchor="center"
-        )
-
-
-    scrollbar = ttk.Scrollbar(
-        table_card,
-        orient="vertical",
-        command=tree.yview
-    )
-
-
-    tree.configure(
-        yscrollcommand=scrollbar.set
-    )
-
-
-    tree.pack(
-        side="left",
-        fill="both",
-        expand=True,
-        padx=(12, 0),
-        pady=12
-    )
-
-
-    scrollbar.pack(
-        side="right",
-        fill="y",
-        padx=(0, 12),
-        pady=12
-    )
-
-
-    # --------------------------------------------------------
-    # FOOTER
-    # --------------------------------------------------------
-
-    footer = tk.Frame(
-        window,
-        bg=BG
-    )
-
-    footer.pack(
-        fill="x",
-        padx=30,
-        pady=15
-    )
-
-
-    summary = tk.Label(
-        footer,
-        text=(
-            "Present: 0    "
-            "Absent: 0    "
-            "Total: 0"
-        ),
-        bg=BG,
-        fg=TEXT,
-        font=("Segoe UI", 10, "bold")
-    )
-
-    summary.pack(
-        side="left"
-    )
-
-
-    # --------------------------------------------------------
-    # LOAD ATTENDANCE
-    # --------------------------------------------------------
-
-    def load():
-
-        if not courses:
-            return
-
-
-        selected_index = (
-            course_combo.current()
-        )
-
-
-        if selected_index == -1:
-
-            messagebox.showwarning(
-                "Select Course",
-                "Please select a course.",
-                parent=window
-            )
-
-            return
-
-
-        selected_date = (
-            date_entry
-            .get()
-            .strip()
-        )
-
-
-        try:
-
-            datetime.strptime(
-                selected_date,
-                "%Y-%m-%d"
-            )
-
-        except ValueError:
-
-            messagebox.showerror(
-                "Invalid Date",
-                "Please use YYYY-MM-DD.",
-                parent=window
-            )
-
-            return
-
-
-        course_id = (
-            courses[selected_index]
-            ["course_id"]
-        )
-
-
-        for item in tree.get_children():
-
-            tree.delete(item)
-
-
-        # ----------------------------------------------------
-        # LOAD STUDENTS
-        # ----------------------------------------------------
-
-        try:
-
-            student_response = (
-                supabase
-                .table("students")
-                .select(
-                    "student_id, "
-                    "name, "
-                    "class, "
-                    "section"
-                )
-                .order("student_id")
-                .execute()
-            )
-
-            students = (
-                student_response.data
-                or []
-            )
-
-
-        except Exception as e:
-
-            messagebox.showerror(
-                "Error",
-                f"Could not load students.\n\n{e}",
-                parent=window
-            )
-
-            return
-
-
-        # ----------------------------------------------------
-        # LOAD ATTENDANCE
-        # ----------------------------------------------------
-
-        try:
-
-            attendance_response = (
-                supabase
-                .table("attendance")
-                .select(
-                    "student_id, "
-                    "status, "
-                    "check_in_time"
-                )
-                .eq(
-                    "course_id",
-                    course_id
-                )
-                .eq(
-                    "attendance_date",
-                    selected_date
-                )
-                .execute()
-            )
-
-            attendance_records = (
-                attendance_response.data
-                or []
-            )
-
-
-        except Exception as e:
-
-            messagebox.showerror(
-                "Error",
-                f"Could not load attendance.\n\n{e}",
-                parent=window
-            )
-
-            return
-
-
-        # ----------------------------------------------------
-        # CREATE ATTENDANCE LOOKUP
-        # ----------------------------------------------------
-
-        attendance_lookup = {
-            record["student_id"]: {
-                "status": record.get(
-                    "status",
-                    "Absent"
-                ),
-                "check_in_time": record.get(
-                    "check_in_time"
-                )
-            }
-            for record in attendance_records
-        }
-
-
-        present_count = 0
-        absent_count = 0
-
-
-        # ----------------------------------------------------
-        # DISPLAY STUDENTS
-        # ----------------------------------------------------
-
-        for student in students:
-
-            student_id = (
-                student["student_id"]
-            )
-
-
-            info = attendance_lookup.get(
-                student_id
-            )
-
-
-            if info:
-
-                status = info["status"]
-
-                check_in_time = (
-                    format_check_in_time(
-                        info.get(
-                            "check_in_time"
-                        )
-                    )
-                )
-
-            else:
-
-                status = "Absent"
-
-                check_in_time = "-"
-
-
-            if status == "Present":
-
-                present_count += 1
-
-            else:
-
-                absent_count += 1
-
-
-            tree.insert(
-                "",
-                "end",
-                values=(
-                    student_id,
-                    student.get(
-                        "name",
-                        "-"
-                    ),
-                    student.get(
-                        "class",
-                        "-"
-                    ),
-                    student.get(
-                        "section",
-                        "-"
-                    ),
-                    status,
-                    check_in_time
-                )
-            )
-
-
-        total = len(
-            students
-        )
-
-
-        rate = (
-            present_count /
-            total *
-            100
-            if total
-            else 0
-        )
-
-
-        summary.configure(
-            text=(
-                f"Present: {present_count}    "
-                f"Absent: {absent_count}    "
-                f"Total: {total}    "
-                f"Attendance Rate: {rate:.1f}%"
-            )
-        )
-
-
-    rounded_button(
-        footer,
-        "↻  Load Attendance",
-        load,
-        width=18
-    ).pack(
-        side="right"
-    )
-
-
-    if courses:
-        load()
-
 
 # ============================================================
 # COURSE MANAGEMENT
+# FIXED VERSION
 # ============================================================
 
 def manage_courses():
@@ -2578,7 +2081,6 @@ def manage_courses():
     set_active(
         courses_nav
     )
-
 
     window = tk.Toplevel(
         root
@@ -2601,7 +2103,6 @@ def manage_courses():
         620
     )
 
-
     # --------------------------------------------------------
     # TITLE
     # --------------------------------------------------------
@@ -2618,7 +2119,6 @@ def manage_courses():
         pady=(25, 15)
     )
 
-
     # --------------------------------------------------------
     # FORM
     # --------------------------------------------------------
@@ -2633,16 +2133,13 @@ def manage_courses():
         pady=(0, 18)
     )
 
-
     labels = [
         "Course Code",
         "Course Name",
         "Teacher"
     ]
 
-
     entries = []
-
 
     for index, label in enumerate(labels):
 
@@ -2663,7 +2160,6 @@ def manage_courses():
             sticky="w"
         )
 
-
         entry = tk.Entry(
             form,
             font=("Segoe UI", 10),
@@ -2675,7 +2171,6 @@ def manage_courses():
                 else 30
             )
         )
-
 
         entry.grid(
             row=1,
@@ -2690,17 +2185,32 @@ def manage_courses():
             sticky="ew"
         )
 
-
         entries.append(entry)
 
-
-    code_entry, name_entry, teacher_entry = (
-        entries
-    )
-
+    code_entry, name_entry, teacher_entry = entries
 
     # --------------------------------------------------------
-    # TABLE
+    # BUTTON FOOTER
+    # --------------------------------------------------------
+    # IMPORTANT:
+    # We reserve the bottom of the window FIRST.
+    # This guarantees that the buttons remain visible.
+    # --------------------------------------------------------
+
+    button_frame = tk.Frame(
+        window,
+        bg=BG
+    )
+
+    button_frame.pack(
+        side="bottom",
+        fill="x",
+        padx=30,
+        pady=15
+    )
+
+    # --------------------------------------------------------
+    # TABLE CARD
     # --------------------------------------------------------
 
     table_card = make_card(
@@ -2710,9 +2220,21 @@ def manage_courses():
     table_card.pack(
         fill="both",
         expand=True,
-        padx=30
+        padx=30,
+        pady=(0, 5)
     )
 
+    table_frame = tk.Frame(
+        table_card,
+        bg=CARD
+    )
+
+    table_frame.pack(
+        fill="both",
+        expand=True,
+        padx=12,
+        pady=12
+    )
 
     columns = (
         "course_id",
@@ -2721,13 +2243,11 @@ def manage_courses():
         "teacher"
     )
 
-
     tree = ttk.Treeview(
-        table_card,
+        table_frame,
         columns=columns,
         show="headings"
     )
-
 
     tree.heading(
         "course_id",
@@ -2749,7 +2269,6 @@ def manage_courses():
         text="Teacher"
     )
 
-
     tree.column(
         "course_id",
         width=70,
@@ -2764,25 +2283,43 @@ def manage_courses():
 
     tree.column(
         "course_name",
-        width=420
+        width=420,
+        anchor="w"
     )
 
     tree.column(
         "teacher",
-        width=260
+        width=260,
+        anchor="w"
     )
-
-
-    tree.pack(
-        fill="both",
-        expand=True,
-        padx=12,
-        pady=12
-    )
-
 
     # --------------------------------------------------------
-    # FORM HELPERS
+    # COURSE SCROLLBAR
+    # --------------------------------------------------------
+
+    course_scrollbar = ttk.Scrollbar(
+        table_frame,
+        orient="vertical",
+        command=tree.yview
+    )
+
+    tree.configure(
+        yscrollcommand=course_scrollbar.set
+    )
+
+    tree.pack(
+        side="left",
+        fill="both",
+        expand=True
+    )
+
+    course_scrollbar.pack(
+        side="right",
+        fill="y"
+    )
+
+    # --------------------------------------------------------
+    # CLEAR FORM
     # --------------------------------------------------------
 
     def clear_form():
@@ -2794,6 +2331,9 @@ def manage_courses():
                 tk.END
             )
 
+        tree.selection_remove(
+            tree.selection()
+        )
 
     # --------------------------------------------------------
     # LOAD COURSES
@@ -2804,7 +2344,6 @@ def manage_courses():
         for item in tree.get_children():
 
             tree.delete(item)
-
 
         try:
 
@@ -2820,7 +2359,6 @@ def manage_courses():
                 .order("course_id")
                 .execute()
             )
-
 
             for course in (
                 response.data
@@ -2846,39 +2384,45 @@ def manage_courses():
                     )
                 )
 
-
         except Exception as e:
+
+            print(
+                f"Error loading courses: {e}"
+            )
 
             messagebox.showerror(
                 "Database Error",
-                f"Could not load courses.\n\n{e}",
+                (
+                    "Could not load courses.\n\n"
+                    f"{e}"
+                ),
                 parent=window
             )
-
 
     # --------------------------------------------------------
     # SELECT COURSE
     # --------------------------------------------------------
 
-    def select_course(
-        _=None
-    ):
+    def select_course(_=None):
 
         selected = tree.selection()
 
-
         if not selected:
             return
-
 
         values = tree.item(
             selected[0],
             "values"
         )
 
+        # Don't call clear_form() here because
+        # it removes the current tree selection.
+        for entry in entries:
 
-        clear_form()
-
+            entry.delete(
+                0,
+                tk.END
+            )
 
         code_entry.insert(
             0,
@@ -2890,17 +2434,17 @@ def manage_courses():
             values[2]
         )
 
-        teacher_entry.insert(
-            0,
-            values[3]
-        )
+        if values[3] != "-":
 
+            teacher_entry.insert(
+                0,
+                values[3]
+            )
 
     tree.bind(
         "<<TreeviewSelect>>",
         select_course
     )
-
 
     # --------------------------------------------------------
     # ADD COURSE
@@ -2926,22 +2470,59 @@ def manage_courses():
             .strip()
         )
 
-
-        if not code or not name:
+        if not code:
 
             messagebox.showwarning(
                 "Missing Information",
-                (
-                    "Course code and "
-                    "course name are required."
-                ),
+                "Please enter a course code.",
                 parent=window
             )
 
+            code_entry.focus_set()
+
             return
 
+        if not name:
+
+            messagebox.showwarning(
+                "Missing Information",
+                "Please enter a course name.",
+                parent=window
+            )
+
+            name_entry.focus_set()
+
+            return
 
         try:
+
+            # Check duplicate course code
+            existing = (
+                supabase
+                .table("courses")
+                .select("course_id")
+                .eq(
+                    "course_code",
+                    code
+                )
+                .limit(1)
+                .execute()
+            )
+
+            if existing.data:
+
+                messagebox.showwarning(
+                    "Duplicate Course",
+                    (
+                        f"Course code '{code}' "
+                        "already exists."
+                    ),
+                    parent=window
+                )
+
+                code_entry.focus_set()
+
+                return
 
             supabase.table(
                 "courses"
@@ -2951,27 +2532,30 @@ def manage_courses():
                 "teacher": teacher
             }).execute()
 
-
             messagebox.showinfo(
                 "Success",
                 "Course added successfully.",
                 parent=window
             )
 
-
             clear_form()
 
             load_courses()
 
-
         except Exception as e:
 
-            messagebox.showerror(
-                "Error",
-                f"Could not add course.\n\n{e}",
-                parent=window
+            print(
+                f"Error adding course: {e}"
             )
 
+            messagebox.showerror(
+                "Database Error",
+                (
+                    "Could not add course.\n\n"
+                    f"{e}"
+                ),
+                parent=window
+            )
 
     # --------------------------------------------------------
     # UPDATE COURSE
@@ -2980,7 +2564,6 @@ def manage_courses():
     def update_course():
 
         selected = tree.selection()
-
 
         if not selected:
 
@@ -2995,15 +2578,12 @@ def manage_courses():
 
             return
 
-
         values = tree.item(
             selected[0],
             "values"
         )
 
-
         course_id = values[0]
-
 
         code = (
             code_entry
@@ -3023,34 +2603,75 @@ def manage_courses():
             .strip()
         )
 
-
-        if not code or not name:
+        if not code:
 
             messagebox.showwarning(
                 "Missing Information",
-                (
-                    "Course code and "
-                    "course name are required."
-                ),
+                "Please enter a course code.",
                 parent=window
             )
 
+            code_entry.focus_set()
+
             return
 
+        if not name:
+
+            messagebox.showwarning(
+                "Missing Information",
+                "Please enter a course name.",
+                parent=window
+            )
+
+            name_entry.focus_set()
+
+            return
 
         try:
 
-            supabase.table(
-                "courses"
-            ).update({
-                "course_code": code,
-                "course_name": name,
-                "teacher": teacher
-            }).eq(
-                "course_id",
-                course_id
-            ).execute()
+            existing = (
+                supabase
+                .table("courses")
+                .select("course_id")
+                .eq(
+                    "course_code",
+                    code
+                )
+                .neq(
+                    "course_id",
+                    course_id
+                )
+                .limit(1)
+                .execute()
+            )
 
+            if existing.data:
+
+                messagebox.showwarning(
+                    "Duplicate Course",
+                    (
+                        f"Course code '{code}' "
+                        "is already being used."
+                    ),
+                    parent=window
+                )
+
+                return
+
+            (
+                supabase
+                .table("courses")
+                .update({
+                    "course_code": code,
+                    "course_name": name,
+                    "teacher": teacher
+                })
+                .eq(
+                    "course_id",
+                    course_id
+                )
+                .execute()
+            )
 
             messagebox.showinfo(
                 "Success",
@@ -3058,20 +2679,24 @@ def manage_courses():
                 parent=window
             )
 
-
             clear_form()
 
             load_courses()
 
-
         except Exception as e:
 
-            messagebox.showerror(
-                "Error",
-                f"Could not update course.\n\n{e}",
-                parent=window
+            print(
+                f"Error updating course: {e}"
             )
 
+            messagebox.showerror(
+                "Database Error",
+                (
+                    "Could not update course.\n\n"
+                    f"{e}"
+                ),
+                parent=window
+            )
 
     # --------------------------------------------------------
     # DELETE COURSE
@@ -3080,7 +2705,6 @@ def manage_courses():
     def delete_course():
 
         selected = tree.selection()
-
 
         if not selected:
 
@@ -3095,41 +2719,39 @@ def manage_courses():
 
             return
 
-
         values = tree.item(
             selected[0],
             "values"
         )
 
-
         course_id = values[0]
-
         course_code = values[1]
-
+        course_name = values[2]
 
         confirm = messagebox.askyesno(
             "Delete Course",
             (
-                f"Are you sure you want "
-                f"to delete {course_code}?"
+                "Are you sure you want to delete "
+                f"{course_code} — {course_name}?"
             ),
             parent=window
         )
 
-
         if not confirm:
             return
 
-
         try:
 
-            supabase.table(
-                "courses"
-            ).delete().eq(
-                "course_id",
-                course_id
-            ).execute()
-
+            (
+                supabase
+                .table("courses")
+                .delete()
+                .eq(
+                    "course_id",
+                    course_id
+                )
+                .execute()
+            )
 
             messagebox.showinfo(
                 "Deleted",
@@ -3137,34 +2759,28 @@ def manage_courses():
                 parent=window
             )
 
-
             clear_form()
 
             load_courses()
 
-
         except Exception as e:
 
+            print(
+                f"Error deleting course: {e}"
+            )
+
             messagebox.showerror(
-                "Error",
-                f"Could not delete course.\n\n{e}",
+                "Database Error",
+                (
+                    "Could not delete course.\n\n"
+                    f"{e}"
+                ),
                 parent=window
             )
 
-
     # --------------------------------------------------------
-    # BUTTONS
+    # COURSE BUTTONS
     # --------------------------------------------------------
-
-    button_frame = tk.Frame(
-        window,
-        bg=BG
-    )
-
-    button_frame.pack(
-        pady=17
-    )
-
 
     rounded_button(
         button_frame,
@@ -3175,7 +2791,6 @@ def manage_courses():
         side="left",
         padx=5
     )
-
 
     rounded_button(
         button_frame,
@@ -3188,7 +2803,6 @@ def manage_courses():
         padx=5
     )
 
-
     rounded_button(
         button_frame,
         "× Delete",
@@ -3199,7 +2813,6 @@ def manage_courses():
         side="left",
         padx=5
     )
-
 
     rounded_button(
         button_frame,
@@ -3212,14 +2825,15 @@ def manage_courses():
         padx=5
     )
 
+    # --------------------------------------------------------
+    # INITIAL LOAD
+    # --------------------------------------------------------
 
     load_courses()
 
 
 # ============================================================
 # NAVIGATION BUTTONS
-# IMPORTANT:
-# These are created AFTER all page functions exist.
 # ============================================================
 
 dashboard_nav = navigation_button(
@@ -3290,7 +2904,6 @@ def close_application():
 
     global clock_job
 
-    # Cancel the repeating clock callback
     if clock_job is not None:
 
         try:
@@ -3304,10 +2917,10 @@ def close_application():
 
         clock_job = None
 
-
-    # Close application
     try:
+
         root.destroy()
+
     except tk.TclError:
         pass
 
