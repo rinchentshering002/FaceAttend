@@ -1,0 +1,11 @@
+﻿.env
+venv/
+__pycache__/
+*.pyc
+*.pyo
+temp_registration.jpg
+test_face.jpg
+*.csv
+.DS_Store
+Thumbs.db
+*.whl
