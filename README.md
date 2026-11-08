@@ -1,3 +1,4 @@
+
 # FaceAttend – Bhutan Digital Attendance System
 
 ## 1. Project Overview
@@ -37,7 +38,6 @@ The system uses facial recognition technology to identify registered students an
 | dlib | Facial recognition processing |
 | NumPy | Numerical operations |
 | Supabase | Cloud database |
-| SQLite | Local testing, if applicable |
 
 ## 5. Project Structure
 
@@ -60,10 +60,12 @@ FaceAttend/
 │   └── camera_test.py
 │
 ├── streamlit_app/
-│   └── Application files
+│   └── app.py
 │
 └── Screenshots/
-    └── Application screenshots
+    ├── 01_Main_Dashboard.png
+    ├── 02_Gradio_App.png
+    └── 03_Streamlit_App.png
 ```
 
 ## 6. Installation and Setup
@@ -89,8 +91,6 @@ cd FaceAttend
 
 ### Step 3: Install Dependencies
 
-Install the required Python libraries using:
-
 ```bash
 py -3.13 -m pip install -r requirements.txt
 ```
@@ -105,7 +105,7 @@ Add the following configuration:
 
 ```env
 SUPABASE_URL=your_supabase_project_url
-SUPABASE_KEY=your_server_side_secret_key
+SUPABASE_KEY=your_supabase_server_side_secret_key
 ```
 
 Replace the example values with your own Supabase project credentials.
@@ -120,7 +120,10 @@ py -3.13 dashboard.py
 
 ### Step 6: Run the Gradio Application
 
-```bash
+Open the terminal in the main project folder and execute:
+
+```powershell
+$env:PYTHONPATH = (Get-Location).Path
 py -3.13 gradio_app/app.py
 ```
 
@@ -128,36 +131,87 @@ Open the local URL displayed in the terminal.
 
 ### Step 7: Run the Streamlit Application
 
-After confirming the Streamlit entry-point filename, run:
-
 ```bash
 py -3.13 -m streamlit run streamlit_app/app.py
 ```
+
+Open the local URL displayed in the terminal.
 
 ## 7. Database Structure
 
 The system uses Supabase with three main tables.
 
-**Students**
+### Students
+
 - student_id
 - name
 - class
 - section
 - face_encoding
 
-**Courses**
+### Courses
+
 - course_id
 - course_code
 - course_name
 - teacher
 
-**Attendance**
+### Attendance
+
 - student_id
 - course_id
 - attendance_date
 - status
 - check_in_time
 
-## 8. Screenshots
+## 8. Application Screenshots
 
-Screenshots of the application interfaces and system outputs will be added here
+### 8.1 Tkinter Desktop Dashboard
+
+![Main Dashboard](Screenshots/01_Main_Dashboard.png)
+
+### 8.2 Gradio Web Application
+
+![Gradio Application](Screenshots/02_Gradio_App.png)
+
+### 8.3 Streamlit Web Application
+
+![Streamlit Application](Screenshots/03_Streamlit_App.png)
+
+## 9. Limitations
+
+- The system requires a working webcam.
+- Facial recognition accuracy may be affected by lighting and camera quality.
+- A stable internet connection is required for Supabase operations.
+- Database access requires correctly configured API credentials and security policies.
+- Facial recognition libraries may require additional installation and configuration.
+
+## 10. Future Improvements
+
+- Improve facial recognition accuracy.
+- Add user authentication and role-based access.
+- Improve attendance report generation.
+- Add attendance export to Excel and PDF.
+- Improve the user interface and mobile accessibility.
+- Strengthen biometric data protection.
+
+## 11. Team Members
+
+- Rinchen Tshering
+- Tandin Penjor
+- Pema Yangki
+- Tashi Lhamo
+- Sangay Choden
+
+## 12. Acknowledgement
+
+We would like to express our sincere gratitude to our lecturers, project supervisor, and everyone who supported us throughout the development of FaceAttend.
+
+This project provided us with practical experience in Python programming, graphical user interface development, facial recognition, web-based applications, and database integration.
+
+---
+
+**FaceAttend – Bhutan Digital Attendance System**
+
+Samtse College of Education  
+Royal University of Bhutan
