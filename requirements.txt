@@ -1,0 +1,9 @@
+opencv-python<5.0
+numpy<2.0
+face-recognition
+face-recognition-models
+dlib-bin
+setuptools<81
+tzdata
+python-dotenv
+supabase
