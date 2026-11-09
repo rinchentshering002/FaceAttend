@@ -217,7 +217,6 @@ Add the following configuration:
 SUPABASE_URL=https://zqwyxxpjpgdrkfzymqlm.supabase.co
 sb_secret_SEHhUfjsps_P095msQElug_VyF3sAFQthis one
 
-Replace the example values with your actual Supabase project credentials.
 
 Security: Keep your .env file private. Never upload secret keys, passwords, or actual biometric data to GitHub.
 
@@ -296,7 +295,7 @@ check_in_time
 
 ### 8.1 Tkinter Desktop Dashboard
 
-![Main Dashboard](Screenshots/01_Main_Dashboard.png)
+![FaceAttend Dashboard](Screenshots/dashboard.jpg)
 
 ### 8.2 Gradio Web Application
 
