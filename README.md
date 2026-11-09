@@ -76,16 +76,16 @@ Supabase
 
 Cloud database
 
-5. Project Structure
+## 5. Project Structure
 
-The FaceAttend project is organised into a desktop application and web-based applications. The web application directory contains separate Gradio and Streamlit interfaces, along with supporting modules and configuration files.
+The FaceAttend project is organised into a desktop application and web-based applications.
 
+```text
 FaceAttend/
 │
 ├── faceattend_web/
 │   ├── .streamlit/
 │   │   └── config.toml
-│   │
 │   ├── .gitignore
 │   ├── database.py
 │   ├── face_engine.py
@@ -107,6 +107,7 @@ FaceAttend/
 ├── .gitignore
 ├── requirements.txt
 └── README.md
+```
 
 Description of Directories and Files
 
