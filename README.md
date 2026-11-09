@@ -64,130 +64,132 @@ FaceAttend/
 ├── run.py                  <-- Web Application Launcher
 │
 └── Screenshots/            <-- Stores screenshots of the applications
+```
+## 6. Installation and Setup
 
-6. Installation and Setup
-Requirements
-Python 3.13
+### Requirements
+- Python 3.13
+- Webcam
+- Internet connection
+- Supabase account
 
-Webcam
-
-Internet connection
-
-Supabase account
-
-Step 1: Clone the Repository
+### Step 1: Clone the Repository
+```bash
 git clone https://github.com/rinchentshering002/FaceAttend.git
 cd FaceAttend
+```
 
-Step 2: Install Dependencies
-bash
+### Step 2: Install Dependencies
+```bash
 py -3.13 -m pip install -r requirements.txt
-
+```
 (Note: For Windows systems, facial recognition may require a compatible dlib installation, which is included via dlib-bin in the requirements).
 
-Step 3: Configure Supabase
+### Step 3: Configure Supabase
 Create a .env file in the main FaceAttend folder and add your credentials:
 
-env
+```env
 SUPABASE_URL=your_supabase_project_url
 SUPABASE_KEY=your_supabase_anon_key
-
+```
 Security: Keep your .env file private. Never upload secret keys or actual biometric data to GitHub. This file is already protected by .gitignore.
 
-Step 4: Run the Tkinter Desktop Application
+### Step 4: Run the Tkinter Desktop Application
 From the main FaceAttend folder, execute:
 
-bash
+```bash
 py -3.13 dashboard.py
+```
 
-Step 5: Run the Web Applications (Streamlit + Gradio)
+### Step 5: Run the Web Applications (Streamlit + Gradio)
 From the main FaceAttend folder, execute:
 
-bash
+```bash
 py -3.13 run.py
-
+```
 This command automatically launches both the Gradio backend (for AI face scanning) and the Streamlit dashboard (for reporting and management).
 
-7. Database Structure
+## 7. Database Structure
 The system uses Supabase to store and manage information across three main tables:
 
-7.1 Students Table
-student_id (Primary Key)
+### 7.1 Students Table
+- student_id (Primary Key)
 
-name
+- name
 
-class
+- class
 
-section
+- section
 
-year
+- year
 
-face_encoding
+- face_encoding
 
-7.2 Courses Table
-course_id (Primary Key)
+### 7.2 Courses Table
+- course_id (Primary Key)
 
-course_code
+- course_code
 
-course_name
+- course_name
 
-teacher
+- teacher
 
-7.3 Attendance Table
-attendance_id (Primary Key)
+### 7.3 Attendance Table
+- attendance_id (Primary Key)
 
-student_id (Foreign Key)
+- student_id (Foreign Key)
 
-course_id (Foreign Key)
+- course_id (Foreign Key)
 
-attendance_date
+- attendance_date
 
-attendance_time
+- attendance_time
 
-status
+- status
 
-8. Application Screenshots
-8.1 Tkinter Desktop Dashboard
-https://screenshots/dashboard.jpg
+## 8. Application Screenshots
 
-8.2 Gradio Web Application
-https://screenshots/02_Gradio_App.png
+### 8.1 Tkinter Desktop Dashboard
+![Tkinter Desktop Dashboard](Screenshots/dashboard.jpg)
 
-8.3 Streamlit Web Application
-https://screenshots/03_Streamlit_App.png
+### 8.2 Gradio Web Application
+![Gradio Web Application](Screenshots/02_Gradio_App.png)
 
-9. Limitations
-The system requires a working webcam.
+### 8.3 Streamlit Web Application
+![Streamlit Web Application](Screenshots/03_Streamlit_App.png)
 
-Facial recognition accuracy may be affected by lighting and camera quality.
+## 9. Limitations
+- The system requires a working webcam.
 
-A stable internet connection is required for Supabase operations.
+- Facial recognition accuracy may be affected by lighting and camera quality.
 
-Database access requires correctly configured API credentials and security policies.
+- A stable internet connection is required for Supabase operations.
 
-10. Future Improvements
-Improve facial recognition accuracy and add liveness detection.
+- Database access requires correctly configured API credentials and security policies.
 
-Add user authentication and role-based access.
+## 10. Future Improvements
+- Improve facial recognition accuracy and add liveness detection.
 
-Improve attendance report generation (Excel and PDF export).
+- Add user authentication and role-based access.
 
-Improve the mobile accessibility of the web dashboard.
+- Improve attendance report generation (Excel and PDF export).
 
-Strengthen biometric data protection and privacy governance.
+- Improve the mobile accessibility of the web dashboard.
 
-11. Team Members
-Rinchen Tshering
+- Strengthen biometric data protection and privacy governance.
 
-Tandin Penjor
+## 11. Team Members
+- Rinchen Tshering
 
-Pema Yangki
+- Tandin Penjor
 
-Tashi Lhamo
+- Pema Yangki
 
-Sangay Choden
+- Tashi Lhamo
 
-12. Acknowledgement
+- Sangay Choden
+
+## 12. Acknowledgement
 We would like to express our sincere gratitude to our lecturers, project supervisor, and everyone who supported us throughout the development of FaceAttend.
 
 This project provided us with practical experience in Python programming, graphical user interface development, facial recognition, web-based applications, and database integration.
@@ -195,3 +197,4 @@ This project provided us with practical experience in Python programming, graphi
 FaceAttend – Bhutan Digital Attendance System
 Samtse College of Education
 Royal University of Bhutan
+
