@@ -79,29 +79,29 @@ git clone https://github.com/rinchentshering002/FaceAttend.git
 cd FaceAttend
 ```
 
-Step 2: Install Dependencies
+### Step 2: Install Dependencies
 ```bash
 py -3.13 -m pip install -r requirements.txt
-(Note: For Windows systems, facial recognition may require a compatible dlib installation, which is included via dlib-bin in the requirements).
 ```
+(Note: For Windows systems, facial recognition may require a compatible dlib installation, which is included via dlib-bin in the requirements).
 
-Step 3: Configure Supabase
+### Step 3: Configure Supabase
 Create a .env file in the main FaceAttend folder and add your credentials:
 
 ```env
 SUPABASE_URL=your_supabase_project_url
 SUPABASE_KEY=your_supabase_anon_key
-Security: Keep your .env file private. Never upload secret keys or actual biometric data to GitHub. This file is already protected by .gitignore.
 ```
+Security: Keep your .env file private. Never upload secret keys or actual biometric data to GitHub. This file is already protected by .gitignore.
 
-Step 4: Run the Tkinter Desktop Application
+### Step 4: Run the Tkinter Desktop Application
 From the main FaceAttend folder, execute:
 
 ```bash
 py -3.13 dashboard.py
 ```
 
-Step 5: Run the Web Applications (Streamlit + Gradio)
+### Step 5: Run the Web Applications (Streamlit + Gradio)
 From the main FaceAttend folder, execute:
 
 ```bash
@@ -109,10 +109,10 @@ py -3.13 run.py
 ```
 This command automatically launches both the Gradio backend (for AI face scanning) and the Streamlit dashboard (for reporting and management).
 
-7. Database Structure
+## 7. Database Structure
 The system uses Supabase to store and manage information across three main tables:
 
-7.1 Students Table
+### 7.1 Students Table
 - student_id (Primary Key)
 
 - name
@@ -125,7 +125,7 @@ The system uses Supabase to store and manage information across three main table
 
 - face_encoding
 
-7.2 Courses Table
+### 7.2 Courses Table
 - course_id (Primary Key)
 
 - course_code
@@ -134,7 +134,7 @@ The system uses Supabase to store and manage information across three main table
 
 - teacher
 
-7.3 Attendance Table
+### 7.3 Attendance Table
 - attendance_id (Primary Key)
 
 - student_id (Foreign Key)
@@ -147,17 +147,18 @@ The system uses Supabase to store and manage information across three main table
 
 - status
 
-8. Application Screenshots
-8.1 Tkinter Desktop Dashboard
-https://screenshots/dashboard.jpg
+## 8. Application Screenshots
 
-8.2 Gradio Web Application
-https://screenshots/02_Gradio_App.png
+### 8.1 Tkinter Desktop Dashboard
+![Tkinter Desktop Dashboard](Screenshots/dashboard.jpg)
 
-8.3 Streamlit Web Application
-https://screenshots/03_Streamlit_App.png
+### 8.2 Gradio Web Application
+![Gradio Web Application](Screenshots/02_Gradio_App.png)
 
-9. Limitations
+### 8.3 Streamlit Web Application
+![Streamlit Web Application](Screenshots/03_Streamlit_App.png)
+
+## 9. Limitations
 - The system requires a working webcam.
 
 - Facial recognition accuracy may be affected by lighting and camera quality.
@@ -166,7 +167,7 @@ https://screenshots/03_Streamlit_App.png
 
 - Database access requires correctly configured API credentials and security policies.
 
-10. Future Improvements
+## 10. Future Improvements
 - Improve facial recognition accuracy and add liveness detection.
 
 - Add user authentication and role-based access.
@@ -177,7 +178,7 @@ https://screenshots/03_Streamlit_App.png
 
 - Strengthen biometric data protection and privacy governance.
 
-11. Team Members
+## 11. Team Members
 - Rinchen Tshering
 
 - Tandin Penjor
@@ -188,7 +189,7 @@ https://screenshots/03_Streamlit_App.png
 
 - Sangay Choden
 
-12. Acknowledgement
+## 12. Acknowledgement
 We would like to express our sincere gratitude to our lecturers, project supervisor, and everyone who supported us throughout the development of FaceAttend.
 
 This project provided us with practical experience in Python programming, graphical user interface development, facial recognition, web-based applications, and database integration.
