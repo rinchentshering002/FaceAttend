@@ -1,4 +1,3 @@
-
 FaceAttend – Bhutan Digital Attendance System
 
 1. Project Overview
@@ -81,40 +80,39 @@ Cloud database
 
 The FaceAttend project is organised into a desktop application and web-based applications. The web application directory contains separate Gradio and Streamlit interfaces, along with supporting modules and configuration files.
 
-GUI PROJECT/
-└── FaceAttend/
-    │
-    ├── faceattend_web/
-    │   ├── .streamlit/
-    │   │   └── config.toml
-    │   │
-    │   ├── .gitignore
-    │   ├── database.py
-    │   ├── face_engine.py
-    │   ├── gradio_interface.py
-    │   ├── requirements.txt
-    │   ├── run.py
-    │   ├── streamlit_app.py
-    │   └── ui_helpers.py
-    │
-    ├── Screenshots/
-    │
-    ├── attendance_report.py
-    ├── attendance.py
-    ├── camera_test.py
-    ├── dashboard.py
-    ├── register_student.py
-    ├── ui_helpers.py
-    │
-    ├── .gitignore
-    ├── requirements.txt
-    └── README.md
+FaceAttend/
+│
+├── faceattend_web/
+│   ├── .streamlit/
+│   │   └── config.toml
+│   │
+│   ├── .gitignore
+│   ├── database.py
+│   ├── face_engine.py
+│   ├── gradio_interface.py
+│   ├── requirements.txt
+│   ├── run.py
+│   ├── streamlit_app.py
+│   └── ui_helpers.py
+│
+├── Screenshots/
+│
+├── attendance_report.py
+├── attendance.py
+├── camera_test.py
+├── dashboard.py
+├── register_student.py
+├── ui_helpers.py
+│
+├── .gitignore
+├── requirements.txt
+└── README.md
 
 Description of Directories and Files
 
 File/Folder
 
-Purpose
+Description
 
 faceattend_web/
 
@@ -138,7 +136,7 @@ Implements the Gradio attendance interface.
 
 run.py
 
-Launches the Gradio application, if configured as its entry point.
+Provides the web application launch script.
 
 streamlit_app.py
 
@@ -146,7 +144,7 @@ Implements the Streamlit attendance interface.
 
 ui_helpers.py
 
-Contains reusable web interface helper functions.
+Contains reusable interface helper functions.
 
 Screenshots/
 
@@ -171,10 +169,6 @@ Implements the main Tkinter desktop dashboard.
 register_student.py
 
 Handles student registration and facial image capture.
-
-ui_helpers.py
-
-Contains reusable desktop interface helper functions.
 
 .gitignore
 
@@ -202,8 +196,6 @@ Supabase account
 
 Step 1: Clone the Repository
 
-Open PowerShell or Command Prompt and execute:
-
 git clone https://github.com/rinchentshering002/FaceAttend.git
 
 Step 2: Open the Project Folder
@@ -222,8 +214,8 @@ Create a .env file in the main FaceAttend folder.
 
 Add the following configuration:
 
-SUPABASE_URL=your_supabase_project_url
-SUPABASE_KEY=your_supabase_secret_key
+SUPABASE_URL=https://zqwyxxpjpgdrkfzymqlm.supabase.co
+sb_secret_SEHhUfjsps_P095msQElug_VyF3sAFQthis one
 
 Replace the example values with your actual Supabase project credentials.
 
@@ -265,7 +257,7 @@ Open the local URL displayed in the terminal.
 
 The system uses Supabase to store and manage student information, course details, and attendance records.
 
-Students Table
+7.1 Students Table
 
 student_id
 
@@ -277,7 +269,7 @@ section
 
 face_encoding
 
-Courses Table
+7.2 Courses Table
 
 course_id
 
@@ -287,7 +279,7 @@ course_name
 
 teacher
 
-Attendance Table
+7.3 Attendance Table
 
 student_id
 
@@ -298,6 +290,7 @@ attendance_date
 status
 
 check_in_time
+
 
 ## 8. Application Screenshots
 
@@ -313,8 +306,7 @@ check_in_time
 
 ![Streamlit Application](Screenshots/03_Streamlit_App.png)
 
-
-9. Limitations
+**9. Limitations**
 
 The system requires a working webcam.
 
@@ -362,3 +354,5 @@ FaceAttend – Bhutan Digital Attendance System
 
 Samtse College of Education
 Royal University of Bhutan
+
+
