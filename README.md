@@ -79,7 +79,7 @@ Cloud database
 
 5. Project Structure
 
-The FaceAttend project is organised into a desktop application and a separate web application directory. The web directory contains the Gradio and Streamlit interfaces, along with their supporting modules and configuration files.
+The FaceAttend project is organised into a desktop application and web-based applications. The web application directory contains separate Gradio and Streamlit interfaces, along with supporting modules and configuration files.
 
 GUI PROJECT/
 └── FaceAttend/
@@ -138,7 +138,7 @@ Implements the Gradio attendance interface.
 
 run.py
 
-Provides the web application launch script.
+Launches the Gradio application, if configured as its entry point.
 
 streamlit_app.py
 
@@ -202,6 +202,8 @@ Supabase account
 
 Step 1: Clone the Repository
 
+Open PowerShell or Command Prompt and execute:
+
 git clone https://github.com/rinchentshering002/FaceAttend.git
 
 Step 2: Open the Project Folder
@@ -216,18 +218,18 @@ For Windows systems, facial recognition may require a compatible dlib installati
 
 Step 4: Configure Supabase
 
-Create a .env file in the main project folder.
+Create a .env file in the main FaceAttend folder.
 
 Add the following configuration:
 
 SUPABASE_URL=your_supabase_project_url
-SUPABASE_KEY=your_supabase_server_side_secret_key
+SUPABASE_KEY=your_supabase_secret_key
 
-Replace the example values with your own Supabase project credentials.
+Replace the example values with your actual Supabase project credentials.
 
 Security: Keep your .env file private. Never upload secret keys, passwords, or actual biometric data to GitHub.
 
-Step 5: Run the Desktop Application
+Step 5: Run the Tkinter Desktop Application
 
 From the main FaceAttend folder, execute:
 
@@ -239,7 +241,7 @@ Navigate to the web application directory:
 
 cd faceattend_web
 
-Install the web application dependencies:
+Install the required dependencies:
 
 py -3.13 -m pip install -r requirements.txt
 
@@ -261,9 +263,9 @@ Open the local URL displayed in the terminal.
 
 7. Database Structure
 
-The system uses Supabase with three main tables.
+The system uses Supabase to store and manage student information, course details, and attendance records.
 
-Students
+Students Table
 
 student_id
 
@@ -275,7 +277,7 @@ section
 
 face_encoding
 
-Courses
+Courses Table
 
 course_id
 
@@ -285,7 +287,7 @@ course_name
 
 teacher
 
-Attendance
+Attendance Table
 
 student_id
 
