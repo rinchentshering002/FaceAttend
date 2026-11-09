@@ -1,5 +1,5 @@
 
-aceAttend – Bhutan Digital Attendance System
+FaceAttend – Bhutan Digital Attendance System
 
 1. Project Overview
 
