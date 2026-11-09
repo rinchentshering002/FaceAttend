@@ -1,0 +1,13 @@
+
+streamlit
+gradio
+supabase
+python-dotenv
+opencv-python
+numpy<2.0
+face-recognition
+face-recognition-models
+dlib-bin
+pandas
+pillow
+tzdata
